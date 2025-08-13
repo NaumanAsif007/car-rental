@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// MySQL datasource: use native enums for statuses
+
+enum RentalStatus {
+  Draft
+  Active
+  Returned
+}
+
+enum VehicleStatus {
+  Active
+  Rented
+}
+
+model Rental {
+  id            String   @id @default(cuid())
+  carId         String
+  customerEmail String
+  startDate     DateTime @default(now())
+  endDate       DateTime @default(now())
+  returnedAt    DateTime?
+  odometerStart Int      @default(0)
+  odometerEnd   Int?
+  damageReport  String?
+  status        RentalStatus @default(Draft)
+  Car           Car      @relation(fields: [carId], references: [id])
+}
+
+model Car {
+  id        String @id @default(cuid())
+  odometer  Int
+  status    VehicleStatus @default(Active)
+  rentals   Rental[]
+}
